@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<sitemapindex>
+
+    <!-- example sitemap 1 -->
+    <sitemap>
+        <loc><!-- location of the sitemap, including https:// or http:// --></loc>
+    </sitemap>
+
+    <!-- example sitemap 2 -->
+    <sitemap>
+        <loc><!-- location of the sitemap, including https:// or http:// --></loc>
+    </sitemap>
+
+</sitemapindex>
