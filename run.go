@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
+	"github.com/dsorm/sitemapwalk/cmd"
 	"io"
 	"net/http"
 	"net/url"
@@ -334,7 +335,13 @@ func loadAndExpandSitemap() Node {
 	fmt.Println("done")
 	return result
 }
+
 func main() {
+	cmd.Execute()
+	if true {
+		return
+	}
+
 	Debug = false
 	appCtx, appCtxCancel := context.WithCancel(context.Background())
 	defer appCtxCancel()
