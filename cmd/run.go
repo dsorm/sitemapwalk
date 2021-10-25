@@ -24,13 +24,13 @@ import (
 // runCmd represents the run command
 var runCmd = &cobra.Command{
 	Use:   "run",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Short: "Takes sitemap, expands it and saves it",
+	Long: `Takes sitemap, expands it and saves it.
+Currently only supports XML files as input and outputs only to Postgres.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+Example:
+sitemapwalk run -i mysitemap.xml -o postgres --execute-sql mysql.sql --db "user=myname password=mysecretpassword host=postgres.example.com dbname=mydatabase port=5432"
+`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("run called")
 	},
@@ -48,4 +48,9 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// runCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	runCmd.Flags().StringP("input", "i", "sitemaps.xml", "Path to XML sitemap")
+	runCmd.Flags().StringP("output-type", "o", "postgres", "where to save the output, postgres by default")
+	runCmd.Flags().String("execute-sql", "postgres", "sql to execute in the database, save.sql by default")
+	runCmd.Flags().String("db", "", "DSN to connect to postgres, by default looks for PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASWORD environment variables and creates DSN automatically")
+
 }
