@@ -1,0 +1,1 @@
+INSERT INTO mySchema.myTable (loc, last_updated) VALUES ($1, now()) ON CONFLICT (loc) DO UPDATE SET last_updated = now();
