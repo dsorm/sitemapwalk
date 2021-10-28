@@ -112,6 +112,7 @@ sitemapwalk run -i mysitemap.xml -o postgres --execute-sql mysql.sql --dsn "user
 			for {
 				select {
 				case <-ctxDisplay.Done():
+					fmt.Printf("%v ; DONE ; %v nodes TOTAL transferred to postgres, latest loc %v\n", time.Now().String(), nodesTransferred, cn.Loc)
 					return
 				case <-ticker.C:
 					fmt.Printf("%v ; %v nodes transferred to postgres, latest loc %v\n", time.Now().String(), nodesTransferred, cn.Loc)
