@@ -16,9 +16,14 @@ limitations under the License.
 package cmd
 
 import (
+	"context"
 	"fmt"
-
+	"github.com/dsorm/sitemapwalk/app"
+	"github.com/jackc/pgx/v4"
 	"github.com/spf13/cobra"
+	"log"
+	"os"
+	"time"
 )
 
 // runCmd represents the run command
@@ -29,10 +34,105 @@ var runCmd = &cobra.Command{
 Currently only supports XML files as input and outputs only to Postgres.
 
 Example:
-sitemapwalk run -i mysitemap.xml -o postgres --execute-sql mysql.sql --db "user=myname password=mysecretpassword host=postgres.example.com dbname=mydatabase port=5432"
+sitemapwalk run -i mysitemap.xml -o postgres --execute-sql mysql.sql --dsn "user=myname password=mysecretpassword host=postgres.example.com dbname=mydatabase port=5432"
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("run called")
+
+		ctx, ctxCancel := context.WithCancel(context.Background())
+		defer ctxCancel()
+		// get, check flags and init things
+
+		// input
+		input, err := cmd.Flags().GetString("input")
+		if err != nil {
+			log.Fatalf("Error: input flag invalid: %v\n", err.Error())
+		}
+		inputBytes, err := os.ReadFile(input)
+		if err != nil {
+			log.Fatalf("Error while reading input file: %v\n", err.Error())
+		}
+
+		// output
+		outputType, err := cmd.Flags().GetString("output-type")
+		if err != nil {
+			log.Fatalf("Error: output-type flag invalid: %v\n", err.Error())
+		} else if outputType != "postgres" {
+			log.Fatalf("Error: only postgres is currently supported as output-type\n")
+		}
+
+		var conn *pgx.Conn
+		if outputType == "postgres" {
+			dsn, err := cmd.Flags().GetString("dsn")
+			if err != nil {
+				log.Fatalf("Error: dsn flag invalid: %v\n", err.Error())
+			}
+			conn, err = pgx.Connect(ctx, dsn)
+			if err != nil {
+				log.Fatalf("Error while connecting to postgres: %v\n", err.Error())
+			}
+
+			executeSql, err := cmd.Flags().GetString("execute-sql")
+			if err != nil {
+				log.Fatalf("Error: output-type flag invalid: %v\n", err.Error())
+			}
+			sqlBytes, err := os.ReadFile(executeSql)
+			if err != nil {
+				log.Fatalf("Error while reading sql file: %v\n", err.Error())
+			}
+			sql := string(sqlBytes)
+			_, err = conn.Prepare(ctx, "send", sql)
+			if err != nil {
+				log.Fatalf("Error while parsing sql into prepared statement: %v\n", err.Error())
+			}
+		}
+
+		// do work
+
+		rootNode, err := app.LoadAndExpandSitemap(inputBytes)
+		if err != nil {
+			log.Fatalf("Error while loading and expanding sitemap: %v\n", err.Error())
+		}
+
+		// only postgres can be used, so do data transfer to postgres
+		fmt.Println("Sending data to postgres...")
+		nodeChan := make(chan app.Node, 16)
+		done := make(chan bool, 1)
+		nodesTransferred := uint64(0)
+		go func() {
+			rootNode.SendForEachUrl(nodeChan)
+			done <- true
+		}()
+
+		// a fancy display for showing progress
+		ctxDisplay, ctxDisplayCancel := context.WithCancel(ctx)
+		cn := app.Node{}
+		defer ctxDisplayCancel()
+		go func() {
+			ticker := time.NewTicker(2 * time.Second)
+			for {
+				select {
+				case <-ctxDisplay.Done():
+					return
+				case <-ticker.C:
+					fmt.Printf("%v ; %v nodes transferred to postgres, latest loc %v\n", time.Now().String(), nodesTransferred, cn.Loc)
+				}
+			}
+		}()
+
+		for {
+			select {
+			case cn = <-nodeChan:
+				_, err = conn.Exec(ctx, "send", cn.Loc)
+				if err != nil {
+					log.Printf("Error while executing sql: %v\n", err.Error())
+				} else {
+					nodesTransferred++
+				}
+			case <-done:
+				goto endloop
+			}
+		}
+	endloop:
 	},
 }
 
@@ -50,7 +150,7 @@ func init() {
 	// runCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	runCmd.Flags().StringP("input", "i", "sitemaps.xml", "Path to XML sitemap")
 	runCmd.Flags().StringP("output-type", "o", "postgres", "where to save the output, postgres by default")
-	runCmd.Flags().String("execute-sql", "postgres", "sql to execute in the database, save.sql by default")
-	runCmd.Flags().String("db", "", "DSN to connect to postgres, by default looks for PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASWORD environment variables and creates DSN automatically")
+	runCmd.Flags().String("execute-sql", "save.sql", "sql to execute in the database, save.sql by default")
+	runCmd.Flags().String("dsn", "", "DSN or URL to connect to postgres, by default looks for PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASWORD environment variables and creates DSN automatically")
 
 }
