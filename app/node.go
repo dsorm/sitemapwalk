@@ -75,7 +75,7 @@ func (n Node) DownloadLoc() ([]byte, error) {
 			TLSClientConfig: &tls.Config{
 				InsecureSkipVerify: false,
 			},
-			ResponseHeaderTimeout: 2 * time.Second,
+			ResponseHeaderTimeout: 5 * time.Second,
 		}
 	}
 	client := http.Client{
