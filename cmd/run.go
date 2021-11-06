@@ -66,7 +66,10 @@ sitemapwalk run -i mysitemap.xml -o postgres --execute-sql mysql.sql --dsn "user
 			if err != nil {
 				log.Fatalf("Error: dsn flag invalid: %v\n", err.Error())
 			}
-			conn, err = pgx.Connect(ctx, dsn)
+
+			connCtx, _ := context.WithTimeout(ctx, time.Second*10)
+			fmt.Println("Connecting to Postgres...")
+			conn, err = pgx.Connect(connCtx, dsn)
 			if err != nil {
 				log.Fatalf("Error while connecting to postgres: %v\n", err.Error())
 			}
