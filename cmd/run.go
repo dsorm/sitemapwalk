@@ -88,6 +88,7 @@ sitemapwalk run -i mysitemap.xml -o postgres --execute-sql mysql.sql --dsn "user
 
 		// do work
 
+		fmt.Println("Everything loaded, expanding...")
 		rootNode, err := app.LoadAndExpandSitemap(inputBytes)
 		if err != nil {
 			log.Fatalf("Error while loading and expanding sitemap: %v\n", err.Error())
