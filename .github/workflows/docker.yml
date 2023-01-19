@@ -49,7 +49,7 @@ jobs:
         uses: docker/metadata-action@6c3ca5dfa6895029f82e5b2f26f060bc0d3c6a2c
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-        tags: |
+          tags: |
             type=raw,value=latest
             type=schedule
             type=ref,event=branch
