@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/dsorm/sitemapwalk/compare/v1.0.0...v1.1.0) (2023-03-07)
+
+
+### Features
+
+* improve Dockerfile ([d63e518](https://github.com/dsorm/sitemapwalk/commit/d63e518b64c20bd491dbddb35bddd7da2462d27c))
+
 ## 1.0.0 (2023-01-19)
 
 
