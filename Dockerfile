@@ -14,7 +14,7 @@ RUN go build -v -o /usr/local/bin/app github.com/dsorm/sitemapwalk
 #chmod +x /home/root/go/bin/sitemapwalk
 
 # final image stage
-FROM ubuntu:focal
+FROM ubuntu:jammy
 
 # copy artefacts and needed files
 RUN mkdir /app && mkdir /app/html
