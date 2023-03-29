@@ -42,6 +42,15 @@ sitemapwalk run -i mysitemap.xml -o postgres --execute-sql mysql.sql --dsn "user
 		defer ctxCancel()
 		// get, check flags and init things
 
+		insecure, err := cmd.Flags().GetBool("insecure")
+		if err != nil {
+			log.Fatalf("Error: insecure flag invalid: %v\n", err.Error())
+		}
+		app.Insecure = insecure
+		if insecure {
+			log.Println("Warning: insecure flag is set, skipping TLS verification")
+		}
+
 		// input
 		input, err := cmd.Flags().GetString("input")
 		if err != nil {
@@ -157,5 +166,6 @@ func init() {
 	runCmd.Flags().StringP("output-type", "o", "postgres", "where to save the output, postgres by default")
 	runCmd.Flags().String("execute-sql", "save.sql", "sql to execute in the database, save.sql by default")
 	runCmd.Flags().String("dsn", "", "DSN or URL to connect to postgres, by default looks for PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASWORD environment variables and creates DSN automatically")
+	runCmd.Flags().Bool("insecure", false, "if set, skips TLS certificate verification")
 
 }

@@ -23,6 +23,8 @@ const (
 
 var Debug = false
 
+var Insecure bool
+
 type Nodes []Node
 
 type Node struct {
@@ -56,7 +58,6 @@ func LoadAndExpandSitemap(sitemapBytes []byte) (Node, error) {
 func (n Node) DownloadLoc() ([]byte, error) {
 	var t http.Transport
 
-	// allow https without valid certificates for debugging
 	if Debug {
 		t = http.Transport{
 			TLSClientConfig: &tls.Config{
@@ -73,7 +74,7 @@ func (n Node) DownloadLoc() ([]byte, error) {
 	} else {
 		t = http.Transport{
 			TLSClientConfig: &tls.Config{
-				InsecureSkipVerify: false,
+				InsecureSkipVerify: Insecure,
 			},
 			ResponseHeaderTimeout: 5 * time.Second,
 		}
