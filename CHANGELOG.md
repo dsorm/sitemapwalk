@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.2.0](https://github.com/dsorm/sitemapwalk/compare/v1.1.0...v1.2.0) (2023-03-29)
+
+
+### Features
+
+* add (optional) insecure flag ([66dbdbf](https://github.com/dsorm/sitemapwalk/commit/66dbdbfdd686aa58df0cc1e1e8496d14f4ec8a48))
+
+
+### Bug Fixes
+
+* update action version ([4329017](https://github.com/dsorm/sitemapwalk/commit/4329017305d8a04202c162521d9d2cb9235d2491))
+
 ## [1.1.0](https://github.com/dsorm/sitemapwalk/compare/v1.0.0...v1.1.0) (2023-03-07)
 
 
