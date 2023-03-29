@@ -32,7 +32,7 @@ jobs:
       run: wget https://github.com/dsorm/gox/releases/download/latest/gox_linux_amd64 && chmod +x gox_linux_amd64 && ./gox_linux_amd64 -ldflags="-w -s" -output="release/{{.Dir}}_{{.OS}}_{{.Arch}}"
 
     - name: Delete the "latest" Release
-      uses: dev-drprasad/delete-tag-and-release@v0.2.0
+      uses: dev-drprasad/delete-tag-and-release@v0.2.1
       if: ${{ steps.vars.outputs.is_release_type_latest == 'true' }}
       with:
           tag_name: ${{ steps.vars.outputs.tag_name }}
